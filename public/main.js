@@ -56,6 +56,10 @@ $(function() {
     var message = $inputMessage.val();
     // Prevent markup from being injected into the message
     message = cleanInput(message);
+    if (message.indexOf('/list') == 0) {
+        socket.emit('list users');
+        return;
+    }
     // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
@@ -188,6 +192,19 @@ $(function() {
     return COLORS[index];
   }
 
+  function listAllUsers(data) {
+    var message = 'List of joined users: ';
+    data.forEach(function (el) { console.log(el); });
+    for (var i = 0; i < data.length; i++) {
+        message += data[i];
+        if (i+1 !== data.length)
+            message += ', ';
+    }
+    log(message, {
+      prepend: true
+    });
+  }
+
   // Keyboard events
 
   $window.keydown(function (event) {
@@ -262,5 +279,9 @@ $(function() {
   // Whenever the server emits 'stop typing', kill the typing message
   socket.on('stop typing', function (data) {
     removeChatTyping(data);
+  });
+
+  socket.on('list users', function (data) {
+      listAllUsers(data);
   });
 });
