@@ -5,6 +5,8 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 
+var users = [];
+
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
 });
@@ -33,6 +35,8 @@ io.on('connection', function (socket) {
     if (addedUser) return;
 
     // we store the username in the socket session for this client
+    if (users.indexOf(username) === -1)
+        users.push(username);
     socket.username = username;
     ++numUsers;
     addedUser = true;
@@ -71,5 +75,9 @@ io.on('connection', function (socket) {
         numUsers: numUsers
       });
     }
+  });
+
+  socket.on('list users', function() {
+      socket.emit('list users', users);
   });
 });
